@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import TrainingForm from '../components/TrainingForm';
-import JsonPreview from '../components/JsonPreview';
 import TrainingCards from '../components/TrainingCards';
 import FaqAccordion from '../components/FaqAccordion';
 import Footer from '../components/Footer';
@@ -419,26 +418,16 @@ export default function Home() {
           </div>
         )}
 
-        {/* Section: Form & Live Schema View */}
+        {/* Section: Form */}
         {role === 'user' && (
-          <div ref={formRef} className="grid grid-cols-1 lg:grid-cols-12 gap-8 scroll-mt-28">
-            {/* Form Side */}
-            <div className="lg:col-span-7 h-full">
-              <TrainingForm
-                formData={formData}
-                onChange={handleFormChange}
-                onReset={handleFormReset}
-                onSubmit={handleFormSubmit}
-                loading={loading}
-              />
-            </div>
-
-            {/* Real-time JSON Preview Side */}
-            <div className="lg:col-span-5 h-full">
-              <div className="sticky top-[calc(50vh-270px)]">
-                <JsonPreview formData={formData} />
-              </div>
-            </div>
+          <div ref={formRef} className="w-full scroll-mt-28">
+            <TrainingForm
+              formData={formData}
+              onChange={handleFormChange}
+              onReset={handleFormReset}
+              onSubmit={handleFormSubmit}
+              loading={loading}
+            />
           </div>
         )}
 
