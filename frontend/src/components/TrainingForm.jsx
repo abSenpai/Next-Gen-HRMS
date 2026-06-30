@@ -283,12 +283,13 @@ export default function TrainingForm({ formData, onChange, onSubmit, onReset, lo
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-gov-border">
           <button
-  type="submit"
-  disabled={loading}
-  className="disabled:opacity-50 disabled:cursor-not-allowed"
->
-  {loading ? "Submitting..." : "Submit Record"}
-</button>
+            type="submit"
+            disabled={loading}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary-blue hover:bg-[#1C355E] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-6 rounded-[4px] shadow-xs transition-colors cursor-pointer"
+          >
+            <Send className="w-4 h-4 text-accent-orange" />
+            {loading ? "Submitting..." : "Submit Record"}
+          </button>
           
           <button
             type="button"

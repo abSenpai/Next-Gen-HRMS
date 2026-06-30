@@ -1,224 +1,44 @@
-# NextGen HRMS – Training & Learning Management Module
+# NextGen HRMS – Training & Learning Management Module (Frontend Client)
 
 ## Overview
 
-The **NextGen HRMS – Training & Learning Management Module** is a full-stack web application developed as part of an HRMS internship project. The module enables employees to manage training records and certification details while providing a foundation for future HRMS functionalities.
+The **NextGen HRMS – Training & Learning Management Module** is a standalone frontend application developed as part of an HRMS project. This module enables employees to submit training records and certificate details, while providing Reporting Officers (Admins) with tools to audit submissions, control view permissions, and provision user access credentials.
 
-The application follows a modern client-server architecture using **React.js** for the frontend, **Spring Boot** for the backend, and **PostgreSQL** for data persistence.
+This project is built using a modern frontend stack with a complete client-side mock backend powered by `localStorage`, enabling full standalone capability in the browser.
 
 ---
 
 ## Features
 
-### Employee Features
+### Employee Portal (User Profile)
+* **Submit Training Records**: Add training completion information including Employee ID, Department, Training Module, and Certificate Number.
+* **Upload Certificates**: Drag-and-drop or select certificate documents.
+* **Personal Dashboard**: View only your registered training history (when logged in as a standard Employee).
+* **Grid and Table View Support**: Switch between responsive cards and detailed tabular views.
 
-* Submit training records
-* Upload training certificate details
-* Track training status
-* View submitted training information
-* Search and filter training records
+### Reporting Officer Portal (Admin Profile)
+* **Access Control**: Switch profiles to view and manage organizational data (restricted to Admin accounts).
+* **Audit Training Records**: View, search, and filter all certificate submissions across all departments and employees.
+* **Provision Employee Access**: Dynamically set roles (`USER`/`ADMIN`) and passwords for registered employees to enable portal logins.
+* **Record Management**: Safely delete training entries with instant UI feedback and persistence in mock storage.
 
-### Training Management Features
-
-* Training module management
-* Employee training tracking
-* Certificate record management
-* Status monitoring (Completed, In Progress, Under Review, Expired)
-* Department-wise training organization
-
-### System Features
-
-* REST API Integration
-* PostgreSQL Database Integration
-* Responsive User Interface
-* Real-time Data Fetching
-* Form Validation
-* Dynamic Search & Filtering
-* Grid and Table View Support
+### Security and Usability
+* **Session-Locked Portal Profiles**: 
+  * Authenticated **Admins** cannot switch to the employee view while logged in.
+  * Authenticated **Employees** are strictly blocked from switching to the Admin view.
+* **Mock Authentication**: Full JWT token simulation and secure session state.
+* **Lag-Free Deletions**: Optimistic state updates and layout-aware exit animations for smooth grid rearrangements.
 
 ---
 
 ## Tech Stack
 
-### Frontend
-
-* React.js
-* Vite
-* JavaScript (ES6+)
-* Tailwind CSS
-* Framer Motion
-* Lucide React Icons
-
-### Backend
-
-* Spring Boot 4
-* Java 21
-* Spring Data JPA
-* REST APIs
-
-### Database
-
-* PostgreSQL
-
-### Development Tools
-
-* Git
-* GitHub
-* VS Code
-* Maven
-* Postman
-
----
-
-## System Architecture
-
-```text
-React Frontend
-       │
-       ▼
-Spring Boot REST APIs
-       │
-       ▼
-PostgreSQL Database
-```
-
----
-
-## Implemented REST APIs
-
-### Fetch All Training Records
-
-```http
-GET /api/certificates/all
-```
-
-Returns all available training records.
-
----
-
-### Save Training Record
-
-```http
-POST /api/certificates/save
-```
-
-Stores employee training information and certificate details.
-
----
-
-### Get Employee Training Records
-
-```http
-GET /api/certificates/employee/{employeeId}
-```
-
-Fetches training records for a specific employee.
-
----
-
-### Download Certificate
-
-```http
-GET /api/certificates/download/{recordId}
-```
-
-Downloads or previews a stored certificate document.
-
----
-
-## Database Design
-
-### Entities
-
-#### Employee
-
-* Employee ID
-* Employee Name
-* Department
-
-#### Department
-
-* Department ID
-* Department Name
-
-#### Training Module
-
-* Module ID
-* Module Name
-* Training Type
-
-#### Training Record
-
-* Record ID
-* Employee Reference
-* Module Reference
-* Certificate Number
-* Instructor Name
-* Issue Date
-* Status
-* Remarks
-* Uploaded Certificate Details
-
----
-
-## Project Structure
-
-```text
-src
-│
-├── assets
-│   ├── hero.png
-│   ├── meity_logo.svg
-│   ├── nic_logo.svg
-│   ├── tripura_logo.png
-│   └── tripura_logo.svg
-│
-├── components
-│   ├── BackToTop.jsx
-│   ├── FaqAccordion.jsx
-│   ├── Footer.jsx
-│   ├── Header.jsx
-│   ├── Hero.jsx
-│   ├── JsonPreview.jsx
-│   ├── TrainingCards.jsx
-│   └── TrainingForm.jsx
-│
-├── data
-│   └── trainingData.json
-│
-├── pages
-│   └── Home.jsx
-│
-├── services
-│   └── trainingService.js
-│
-├── App.jsx
-├── App.css
-├── index.css
-└── main.jsx
-
-Backend
-│
-├── controller
-│   └── TrainingRecordController.java
-│
-├── entity
-│   ├── Department.java
-│   ├── Employee.java
-│   ├── TrainingModule.java
-│   └── TrainingRecord.java
-│
-├── repository
-│   ├── DepartmentRepository.java
-│   ├── EmployeeRepository.java
-│   ├── TrainingModuleRepository.java
-│   └── TrainingRecordRepository.java
-│
-├── service
-│   └── TrainingRecordService.java
-│
-└── HrmsApplication.java
-```
+* **Framework**: React.js (v19)
+* **Build Tool**: Vite
+* **Styling**: Tailwind CSS (v4)
+* **Animations**: Framer Motion
+* **Icons**: Lucide React
+* **Data Persistence**: Client-side `localStorage`
 
 ---
 
@@ -227,116 +47,47 @@ Backend
 ### Clone Repository
 
 ```bash
-git clone https://github.com/manikanta-tamminana/Training_Module_of_NextGen_HRMS.git
-cd Training_Module_of_NextGen_HRMS
+git clone https://github.com/abSenpai/Next-Gen-HRMS.git
+cd Next-Gen-HRMS
 ```
+
+### Run Frontend
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open the application in your browser:
+   [http://localhost:5173](http://localhost:5173)
 
 ---
 
-### Frontend Setup
+## Default Accounts for Testing
 
-Install dependencies:
+The mock database is pre-seeded with the following credentials:
 
-```bash
-npm install
-```
-
-Run development server:
-
-```bash
-npm run dev
-```
-
-Frontend runs at:
-
-```text
-http://localhost:5173
-```
-
----
-
-### Backend Setup
-
-Configure PostgreSQL database credentials inside:
-
-```text
-src/main/resources/application.properties
-```
-
-Run backend:
-
-```bash
-./mvnw spring-boot:run
-```
-
-Backend runs at:
-
-```text
-http://localhost:8080
-```
-
----
-
-## Current Progress
-
-### Completed
-
-* React Frontend Development
-* Spring Boot Backend Development
-* PostgreSQL Integration
-* REST API Integration
-* Training Submission Form
-* Dynamic Record Fetching
-* Employee & Training Data Modeling
-* Search Functionality
-* Status Filtering
-* Responsive UI
-* Training Record Persistence
-
-### In Progress
-
-* Record Deletion API
-* Enhanced Validation
-* Role-Based Access Control
-* Authentication & Authorization
-
----
-
-## Future Enhancements
-
-* User Authentication
-* Role-Based Access Control
-* Employee Dashboard
-* Analytics & Reporting
-* Certificate File Management
-* Leave Management Module
-* Attendance Management Module
-* Performance Management Module
-* Notification System
-
----
-
-## Learning Outcomes
-
-Through this project, the following concepts were implemented and practiced:
-
-* React Components & Props
-* State Management using useState
-* React Hooks
-* REST API Integration
-* Spring Boot Development
-* JPA & Hibernate
-* PostgreSQL Database Design
-* Full Stack Application Development
-* Git & GitHub Workflow
+* **Admin (Reporting Officer)**:
+  * **Employee ID**: `EMP001`
+  * **Password**: `password`
+* **Standard Employee (User)**:
+  * **Employee ID**: `TE-030316`
+  * **Password**: `password`
 
 ---
 
 ## Author
 
-**Manikanta Tamminana**
+**abSenpai**
 
-Intern – NextGen HRMS Project
-
-GitHub:
-https://github.com/manikanta-tamminana
+* **GitHub**: [https://github.com/abSenpai](https://github.com/abSenpai)

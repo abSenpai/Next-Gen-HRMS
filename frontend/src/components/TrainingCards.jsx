@@ -163,104 +163,106 @@ export default function TrainingCards({ records, onDeleteRecord, role = 'user', 
           No training records found matching your filters.
         </div>
       ) : (
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="popLayout" initial={false}>
           {viewMode === 'grid' ? (
             /* Card Grid View (Tripura "Major Modules" style) */
             <motion.div 
               layout
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
-              {filteredRecords.map((rec, idx) => {
-                const formattedIdx = String(idx + 1).padStart(2, '0');
-                return (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    key={rec.recordId}
-                    className={`bg-white border border-gov-border rounded-[4px] shadow-xs hover:shadow-md transition-shadow flex flex-col relative overflow-hidden ${getCardBorderColor(rec.status, idx)}`}
-                  >
-                    {/* Index & Status */}
-                    <div className="px-5 pt-5 pb-2 flex justify-between items-start">
-                      <span className="text-3xl font-extrabold text-[#D4DBE8] font-mono leading-none">
-                        {formattedIdx}
-                      </span>
-                      <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-[3px] border ${getStatusBadgeClass(rec.status)}`}>
-                        {rec.status}
-                      </span>
-                    </div>
-
-                    {/* Content Body */}
-                    <div className="px-5 pb-5 flex-grow flex flex-col">
-                      <h3 className="text-md font-extrabold text-primary-blue leading-snug mb-3">
-                        {rec.module?.moduleName || rec.trainingModule}
-                      </h3>
-                      
-                      {/* Detailed Stats */}
-                      <div className="space-y-2 text-xs text-text-secondary flex-grow">
-                        <div className="flex items-center gap-2 pb-1.5 border-b border-gov-bg/60">
-                          <User className="w-3.5 h-3.5 text-primary-blue/70" />
-                          <div>
-                            <span className="font-semibold text-text-primary block">{rec.employee?.employeeName || rec.employeeName}</span>
-                            <span className="text-[10px] text-text-secondary uppercase">ID: {rec.employee?.employeeId || rec.employeeId} • {rec.employee?.department?.departmentName || rec.department}</span>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 pt-1">
-                          <div className="flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5 text-text-secondary/70" />
-                            <div>
-                              <span className="text-[10px] text-text-secondary uppercase block">Issued</span>
-                              <span className="font-medium text-text-primary">{rec.issueDate || 'N/A'}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <FileText className="w-3.5 h-3.5 text-text-secondary/70" />
-                            <div>
-                              <span className="text-[10px] text-text-secondary uppercase block">Attachment</span>
-                              <span className="font-semibold text-primary-blue block max-w-[125px] truncate" title={rec.certificateFile || 'None'}>
-                                {rec.certificateFile || 'No file'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {rec.certificateNumber && (
-                          <div className="bg-gov-bg/30 p-2 rounded-[3px] border border-gov-border/40 mt-3">
-                            <div className="flex items-center gap-1.5 text-[10px] text-text-secondary font-bold uppercase tracking-wider mb-0.5">
-                              <Award className="w-3.5 h-3.5 text-accent-orange" />
-                              <span>Certificate No</span>
-                            </div>
-                            <span className="font-mono text-xs text-primary-blue font-semibold">{rec.certificateNumber}</span>
-                          </div>
-                        )}
-
-                        {rec.remarks && (
-                          <div className="text-[11px] italic bg-gov-bg/10 p-2 rounded-[3px] border-l-2 border-l-gov-border mt-2 leading-relaxed">
-                            "{rec.remarks}"
-                          </div>
-                        )}
+              <AnimatePresence mode="popLayout">
+                {filteredRecords.map((rec, idx) => {
+                  const formattedIdx = String(idx + 1).padStart(2, '0');
+                  return (
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      key={rec.recordId}
+                      className={`bg-white border border-gov-border rounded-[4px] shadow-xs hover:shadow-md transition-shadow flex flex-col relative overflow-hidden ${getCardBorderColor(rec.status, idx)}`}
+                    >
+                      {/* Index & Status */}
+                      <div className="px-5 pt-5 pb-2 flex justify-between items-start">
+                        <span className="text-3xl font-extrabold text-[#D4DBE8] font-mono leading-none">
+                          {formattedIdx}
+                        </span>
+                        <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-[3px] border ${getStatusBadgeClass(rec.status)}`}>
+                          {rec.status}
+                        </span>
                       </div>
 
-                      {/* Actions */}
-                      <div className="flex gap-2 mt-4 pt-3 border-t border-gov-border/60">
-                        <button
-                          onClick={() => {
+                      {/* Content Body */}
+                      <div className="px-5 pb-5 flex-grow flex flex-col">
+                        <h3 className="text-md font-extrabold text-primary-blue leading-snug mb-3">
+                          {rec.module?.moduleName || rec.trainingModule}
+                        </h3>
+                        
+                        {/* Detailed Stats */}
+                        <div className="space-y-2 text-xs text-text-secondary flex-grow">
+                          <div className="flex items-center gap-2 pb-1.5 border-b border-gov-bg/60">
+                            <User className="w-3.5 h-3.5 text-primary-blue/70" />
+                            <div>
+                              <span className="font-semibold text-text-primary block">{rec.employee?.employeeName || rec.employeeName}</span>
+                              <span className="text-[10px] text-text-secondary uppercase">ID: {rec.employee?.employeeId || rec.employeeId} • {rec.employee?.department?.departmentName || rec.department}</span>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 pt-1">
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5 text-text-secondary/70" />
+                              <div>
+                                <span className="text-[10px] text-text-secondary uppercase block">Issued</span>
+                                <span className="font-medium text-text-primary">{rec.issueDate || 'N/A'}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <FileText className="w-3.5 h-3.5 text-text-secondary/70" />
+                              <div>
+                                <span className="text-[10px] text-text-secondary uppercase block">Attachment</span>
+                                <span className="font-semibold text-primary-blue block max-w-[125px] truncate" title={rec.certificateFile || 'None'}>
+                                  {rec.certificateFile || 'No file'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {rec.certificateNumber && (
+                            <div className="bg-gov-bg/30 p-2 rounded-[3px] border border-gov-border/40 mt-3">
+                              <div className="flex items-center gap-1.5 text-[10px] text-text-secondary font-bold uppercase tracking-wider mb-0.5">
+                                <Award className="w-3.5 h-3.5 text-accent-orange" />
+                                <span>Certificate No</span>
+                              </div>
+                              <span className="font-mono text-xs text-primary-blue font-semibold">{rec.certificateNumber}</span>
+                            </div>
+                          )}
+
+                          {rec.remarks && (
+                            <div className="text-[11px] italic bg-gov-bg/10 p-2 rounded-[3px] border-l-2 border-l-gov-border mt-2 leading-relaxed">
+                              "{rec.remarks}"
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-2 mt-4 pt-3 border-t border-gov-border/60">
+                          <button
+                            onClick={() => {
   console.log("Deleting:", rec);
   onDeleteRecord(rec.recordId);
 }}
-                          className="flex-1 flex items-center justify-center gap-1 border border-rose-200 hover:bg-rose-50 text-rose-600 font-bold text-xs py-2 rounded-[3px] transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          Delete Record
-                        </button>
+                            className="flex-1 flex items-center justify-center gap-1 border border-rose-200 hover:bg-rose-50 text-rose-600 font-bold text-xs py-2 rounded-[3px] transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Delete Record
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </motion.div>
           ) : (
             /* Table View (Tripura "Nodal Officers list" style) */

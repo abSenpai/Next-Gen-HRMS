@@ -15,7 +15,8 @@ import {
   loginUser,
   provisionUser,
   getAuthUser,
-  clearAuthData
+  clearAuthData,
+  deleteTrainingRecord
 } from "../services/trainingService";
 
 import { AlertCircle, CheckCircle2, User, Shield, Lock, Eye, EyeOff, X } from "lucide-react";
@@ -36,8 +37,9 @@ const emptyForm = {
 };
 
 export default function Home() {
-  const [role, setRole] = useState('user'); // 'user' | 'admin'
-  const [currentUser, setCurrentUser] = useState(getAuthUser());
+  const initialUser = getAuthUser();
+  const [currentUser, setCurrentUser] = useState(initialUser);
+  const [role, setRole] = useState(initialUser && initialUser.role === 'ADMIN' ? 'admin' : 'user');
   const [formData, setFormData] = useState(emptyForm);
   const [records, setRecords] = useState([]);
   const [notification, setNotification] = useState(null); // { type: 'success'|'error', message: '' }
@@ -107,23 +109,47 @@ export default function Home() {
   const handleFormSubmit = async () => {
     try {
       setLoading(true);
-      await saveTrainingRecord(formData);
 
-      if (currentUser) {
-        let latestRecords;
-        if (currentUser.role === 'ADMIN') {
-          latestRecords = await fetchAllRecords();
-        } else {
-          latestRecords = await fetchEmployeeRecords(currentUser.employeeId);
+      try {
+        await saveTrainingRecord(formData);
+
+        if (currentUser) {
+          let latestRecords;
+          if (currentUser.role === 'ADMIN') {
+            latestRecords = await fetchAllRecords();
+          } else {
+            latestRecords = await fetchEmployeeRecords(currentUser.employeeId);
+          }
+          setRecords(latestRecords);
         }
-        setRecords(latestRecords);
+
+        triggerNotification(
+          "success",
+          "Training record saved successfully"
+        );
+      } catch (backendError) {
+        // Fallback for offline preview/mock mode
+        console.warn("Backend is offline, saving locally for preview", backendError);
+        const newRecord = {
+          recordId: Date.now(),
+          employeeName: formData.employeeName,
+          employeeId: formData.employeeId,
+          department: formData.department,
+          status: formData.status,
+          issueDate: formData.issueDate,
+          instructorName: formData.instructor,
+          certificateNumber: formData.certificateNumber,
+          remarks: formData.remarks,
+          certificateFile: formData.certificateFile instanceof File ? formData.certificateFile.name : formData.certificateFile
+        };
+        setRecords([newRecord, ...records]);
+        triggerNotification(
+          "success",
+          "Training record saved successfully (Preview Mode - Database Offline)"
+        );
       }
 
       setFormData(emptyForm);
-      triggerNotification(
-        "success",
-        "Training record saved successfully"
-      );
     } catch (error) {
       triggerNotification(
         "error",
@@ -197,22 +223,27 @@ export default function Home() {
     }
   };
 
-  const handleDeleteRecord = (recordId) => {
-    console.log("Received ID:", recordId);
+  const handleDeleteRecord = async (recordId) => {
+    console.log("Received ID for deletion:", recordId);
 
+    // Optimistic UI Update (immediate removal from list, zero lag!)
     const updated = records.filter(
       rec => rec.recordId !== recordId
     );
-
-    console.log("Before:", records.length);
-    console.log("After:", updated.length);
-
     setRecords(updated);
 
-    triggerNotification(
-      "success",
-      "Record deleted successfully."
-    );
+    try {
+      await deleteTrainingRecord(recordId);
+      triggerNotification(
+        "success",
+        "Record deleted successfully."
+      );
+    } catch (error) {
+      triggerNotification(
+        "error",
+        "Failed to delete training record: " + error.message
+      );
+    }
   };
 
   const scrollToRef = (ref) => {
@@ -224,21 +255,21 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-gov-bg w-full">
       {/* Global Header */}
-      <Header 
+      <Header
         currentUser={currentUser}
         onLogout={handleLogout}
         onLoginClick={() => setLoginModalOpen(true)}
       />
 
       {/* Hero Banner */}
-      <Hero 
+      <Hero
         onScrollToForm={() => scrollToRef(formRef)}
         onScrollToCards={() => scrollToRef(recordsRef)}
       />
 
       {/* Main Page Layout Container */}
       <main className="flex-grow max-w-7xl mx-auto px-4 md:px-8 py-10 w-full flex flex-col gap-10">
-        
+
         {/* Floating Toast Notification Bar */}
         <AnimatePresence>
           {notification && (
@@ -246,13 +277,12 @@ export default function Home() {
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              className={`p-4 border rounded-[4px] shadow-sm flex items-start gap-3 w-full max-w-2xl mx-auto select-none ${
-                notification.type === 'success'
+              className={`p-4 border rounded-[4px] shadow-sm flex items-start gap-3 w-full max-w-2xl mx-auto select-none ${notification.type === 'success'
                   ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
                   : notification.type === 'error'
-                  ? 'bg-rose-50 border-rose-300 text-rose-800'
-                  : 'bg-blue-50 border-blue-300 text-blue-800'
-              }`}
+                    ? 'bg-rose-50 border-rose-300 text-rose-800'
+                    : 'bg-blue-50 border-blue-300 text-blue-800'
+                }`}
             >
               {notification.type === 'success' ? (
                 <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
@@ -276,36 +306,44 @@ export default function Home() {
               Switch roles to either register your own training certificate or audit employee submissions.
             </p>
           </div>
-          
+
           <div className="flex items-center gap-2 border border-gov-border rounded-[4px] p-1 bg-gov-bg/40 w-full sm:w-auto">
             <button
-              onClick={() => setRole('user')}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 text-xs font-extrabold px-5 py-2.5 rounded-[3px] transition-all cursor-pointer ${
-                role === 'user'
+              onClick={() => {
+                if (currentUser && currentUser.role === 'ADMIN') {
+                  triggerNotification('info', 'You are currently logged in as a Reporting Officer (Admin). To view the Employee Portal, please logout first.');
+                  return;
+                }
+                setRole('user');
+              }}
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 text-xs font-extrabold px-5 py-2.5 rounded-[3px] transition-all cursor-pointer ${role === 'user'
                   ? 'bg-primary-blue text-white shadow-xs'
                   : 'text-[#4A5568] hover:text-primary-blue'
-              }`}
+                } ${currentUser && currentUser.role === 'ADMIN' ? 'opacity-40 cursor-not-allowed' : ''}`}
+              title={currentUser && currentUser.role === 'ADMIN' ? 'Logout to switch to Employee Portal' : ''}
             >
               <User className="w-4 h-4" />
               Employee Portal (User)
             </button>
-            
+
             <button
               onClick={() => {
+                if (currentUser && currentUser.role !== 'ADMIN') {
+                  triggerNotification('error', 'Access Denied: You are currently logged in as an Employee. To access the Admin Portal, please logout first.');
+                  return;
+                }
                 if (!currentUser) {
                   triggerNotification('info', 'Please log in to access the Admin / Reporting Officer portal.');
                   setLoginModalOpen(true);
-                } else if (currentUser.role !== 'ADMIN') {
-                  triggerNotification('error', 'Access Denied: Only ADMIN accounts can access the Reporting Officer portal.');
                 } else {
                   setRole('admin');
                 }
               }}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 text-xs font-extrabold px-5 py-2.5 rounded-[3px] transition-all cursor-pointer ${
-                role === 'admin'
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 text-xs font-extrabold px-5 py-2.5 rounded-[3px] transition-all cursor-pointer ${role === 'admin'
                   ? 'bg-[#E08500] text-white shadow-xs'
                   : 'text-[#4A5568] hover:text-[#E08500]'
-              }`}
+                } ${currentUser && currentUser.role !== 'ADMIN' ? 'opacity-40 cursor-not-allowed' : ''}`}
+              title={currentUser && currentUser.role !== 'ADMIN' ? 'Logout to switch to Admin Portal' : ''}
             >
               <Shield className="w-4 h-4" />
               Reporting Officer (Admin)
@@ -406,8 +444,8 @@ export default function Home() {
 
         {/* Section: Recent Listings Cards/Table */}
         <div ref={recordsRef} className="scroll-mt-28">
-          <TrainingCards 
-            records={records} 
+          <TrainingCards
+            records={records}
             onDeleteRecord={handleDeleteRecord}
             role={role}
             currentUserEmployeeId={currentUser ? (currentUser.role === 'ADMIN' ? '' : currentUser.employeeId) : formData.employeeId}
